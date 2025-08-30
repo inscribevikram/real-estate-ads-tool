@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Real Estate Ads Tool</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 40px; }
+    .ad-card { border: 1px solid #ccc; border-radius: 10px; padding: 12px; margin: 10px 0; background: #fafafa; }
+  </style>
+</head>
+<body>
+  <h2>🔍 Real Estate Ads Finder</h2>
+  <input type="text" id="keyword" placeholder="Enter location / keyword" />
+  <button onclick="searchAds()">Search Ads</button>
+  <div id="results"></div>
+
+  <script>
+    async function searchAds() {
+      const q = document.getElementById("keyword").value;
+      if (!q) { alert("Enter a keyword"); return; }
+
+      document.getElementById("results").innerHTML = "Loading...";
+
+      try {
+        // Replace with your deployed proxy URL
+        const res = await fetch(`/api/ads?q=${encodeURIComponent(q)}`);
+        const data = await res.json();
+
+        if (!data.data || data.data.length === 0) {
+          document.getElementById("results").innerHTML = "No ads found.";
+          return;
+        }
+
+        let html = "";
+        data.data.forEach(ad => {
+          html += `
+            <div class="ad-card">
+              <h4>${ad.page_name || "Unknown Page"}</h4>
+              <p>${ad.ad_creative_bodies ? ad.ad_creative_bodies[0] : ""}</p>
+              <a href="${ad.ad_snapshot_url}" target="_blank">View Ad Snapshot</a>
+            </div>
+          `;
+        });
+        document.getElementById("results").innerHTML = html;
+      } catch (e) {
+        console.error(e);
+        document.getElementById("results").innerHTML = "Error fetching ads.";
+      }
+    }
+  </script>
+</body>
+</html>
